@@ -269,4 +269,12 @@ class LocalNotificationService {
     }
     return scheduledDate;
   }
+
+  Future<void> cancel(int id) async {
+    await _plugin.cancel(id);
+  }
+
+  Future<void> cancelAll() async {
+    await _plugin.cancelAll();
+  }
 }

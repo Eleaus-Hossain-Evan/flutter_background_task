@@ -14,6 +14,9 @@ class FakeFlutterLocalNotificationsPlugin extends Fake implements FlutterLocalNo
   bool zonedScheduleCalled = false;
   DateTimeComponents? lastMatchDateTimeComponents;
   tz.TZDateTime? lastScheduledDate;
+  bool cancelCalled = false;
+  int? lastCancelledId;
+  bool cancelAllCalled = false;
 
   @override
   Future<bool?> initialize(
@@ -56,6 +59,17 @@ class FakeFlutterLocalNotificationsPlugin extends Fake implements FlutterLocalNo
     zonedScheduleCalled = true;
     lastMatchDateTimeComponents = matchDateTimeComponents;
     lastScheduledDate = scheduledDate;
+  }
+
+  @override
+  Future<void> cancel(int id, {String? tag}) async {
+    cancelCalled = true;
+    lastCancelledId = id;
+  }
+
+  @override
+  Future<void> cancelAll() async {
+    cancelAllCalled = true;
   }
 
   @override
@@ -159,5 +173,24 @@ void main() {
 
     expect(mockPlugin.zonedScheduleCalled, isTrue);
     expect(mockPlugin.lastMatchDateTimeComponents, equals(DateTimeComponents.dayOfWeekAndTime));
+  });
+
+  test('cancel should cancel a specific notification by id', () async {
+    final mockPlugin = FakeFlutterLocalNotificationsPlugin();
+    final service = LocalNotificationService(plugin: mockPlugin);
+
+    await service.cancel(5);
+
+    expect(mockPlugin.cancelCalled, isTrue);
+    expect(mockPlugin.lastCancelledId, equals(5));
+  });
+
+  test('cancelAll should cancel all notifications', () async {
+    final mockPlugin = FakeFlutterLocalNotificationsPlugin();
+    final service = LocalNotificationService(plugin: mockPlugin);
+
+    await service.cancelAll();
+
+    expect(mockPlugin.cancelAllCalled, isTrue);
   });
 }
