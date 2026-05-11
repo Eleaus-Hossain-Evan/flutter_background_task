@@ -121,4 +121,45 @@ class LocalNotificationService {
 
     await _plugin.show(id, title, body, details, payload: payload);
   }
+
+  Future<void> showWithActions({
+    required int id,
+    required String title,
+    required String body,
+    String? payload,
+  }) async {
+    const androidDetails = AndroidNotificationDetails(
+      'local_notifications',
+      'Local Notifications',
+      channelDescription: 'Channel for local notifications',
+      importance: Importance.max,
+      priority: Priority.high,
+      icon: '@mipmap/ic_launcher',
+      actions: <AndroidNotificationAction>[
+        AndroidNotificationAction(
+          'view_action',
+          'View',
+          showsUserInterface: true,
+        ),
+        AndroidNotificationAction(
+          'dismiss_action',
+          'Dismiss',
+          cancelNotification: true,
+        ),
+      ],
+    );
+
+    const darwinDetails = DarwinNotificationDetails(
+      categoryIdentifier: 'local_notification_category',
+      interruptionLevel: InterruptionLevel.active,
+    );
+
+    const details = NotificationDetails(
+      android: androidDetails,
+      iOS: darwinDetails,
+      macOS: darwinDetails,
+    );
+
+    await _plugin.show(id, title, body, details, payload: payload);
+  }
 }

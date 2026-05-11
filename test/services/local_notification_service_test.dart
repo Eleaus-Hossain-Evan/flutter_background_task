@@ -80,4 +80,23 @@ void main() {
     expect(mockPlugin.lastBody, equals('Test Body'));
     expect(mockPlugin.lastPayload, equals('test_payload'));
   });
+
+  test('showWithActions should include View and Dismiss actions', () async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    final mockPlugin = FakeFlutterLocalNotificationsPlugin();
+    final service = LocalNotificationService(plugin: mockPlugin);
+
+    await service.showWithActions(
+      id: 2,
+      title: 'Action Title',
+      body: 'Action Body',
+      payload: 'action_payload',
+    );
+
+    expect(mockPlugin.showCalled, isTrue);
+    final androidDetails = mockPlugin.lastDetails?.android as AndroidNotificationDetails?;
+    expect(androidDetails?.actions?.length, equals(2));
+    expect(androidDetails?.actions?[0].id, equals('view_action'));
+    expect(androidDetails?.actions?[1].id, equals('dismiss_action'));
+  });
 }
