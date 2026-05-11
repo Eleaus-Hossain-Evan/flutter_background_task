@@ -7,6 +7,9 @@ typedef SocketEventCallback = void Function(dynamic data);
 class BackgroundSocketService {
   static const String _baseUrl =
       'https://realtime-db-server.tekanalyticaltd.com';
+  static const int _reconnectionAttempts = 5;
+  static const int _reconnectionDelay = 3000;
+  static const int _errorLogLevel = 1000;
 
   io.Socket? _socket;
   final _eventController =
@@ -31,8 +34,8 @@ class BackgroundSocketService {
       serverUrl,
       io.OptionBuilder()
           .setTransports(['websocket'])
-          .setReconnectionAttempts(5)
-          .setReconnectionDelay(3000)
+          .setReconnectionAttempts(_reconnectionAttempts)
+          .setReconnectionDelay(_reconnectionDelay)
           .enableAutoConnect()
           .build(),
     );
@@ -60,7 +63,7 @@ class BackgroundSocketService {
       developer.log(
         'Socket connection error: $error',
         name: 'BackgroundSocketService',
-        level: 1000,
+        level: _errorLogLevel,
       );
       onError?.call(error);
     });
@@ -69,7 +72,7 @@ class BackgroundSocketService {
       developer.log(
         'Socket error: $error',
         name: 'BackgroundSocketService',
-        level: 1000,
+        level: _errorLogLevel,
       );
       onError?.call(error);
     });
