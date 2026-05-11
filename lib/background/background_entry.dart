@@ -4,7 +4,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import '../services/socket_service.dart';
 import '../services/socket_service_provider.dart';
 import '../services/local_notification_service.dart';
 import '../providers/online_provider.dart';
@@ -31,14 +30,13 @@ void onStart(ServiceInstance service) async {
   container.read(onlineProvider.notifier).set(persisted);
 
   final socket = container.read(socketServiceProvider);
-  socket.events.listen((event) async {
-    if (event.type == 'notification') {
-      final payload = event.payload as Map<String, dynamic>;
+  socket.eventStream.listen((event) async {
+    if (event['type'] == 'notification') {
       await notifService.showWithActions(
         id: 0,
-        title: payload['title'] ?? 'New notification',
-        body: payload['body'] ?? '',
-        payload: payload.toString(),
+        title: event['title'] ?? 'New notification',
+        body: event['body'] ?? '',
+        payload: event.toString(),
       );
     }
   });

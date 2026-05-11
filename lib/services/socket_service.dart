@@ -1,50 +1,69 @@
 import 'dart:async';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'dart:developer';
 
-class SocketEvent {
-  final String type;
-  final dynamic payload;
-
-  const SocketEvent._(this.type, this.payload);
-  const SocketEvent.connected() : this._('connected', null);
-  const SocketEvent.disconnected() : this._('disconnected', null);
-  const SocketEvent.notification(dynamic data) : this._('notification', data);
-  const SocketEvent.error(dynamic err) : this._('error', err);
-}
+import 'package:socket_io_client/socket_io_client.dart' as sic;
 
 class SocketService {
-  final String _url;
-  IO.Socket? _socket;
-  final _controller = StreamController<SocketEvent>.broadcast();
+  static const baseUrlSocket =
+      'https://realtime-db-server.techanalyticaltd.com';
 
-  SocketService({required String url}) : _url = url;
+  final sic.Socket _socket;
 
-  Stream<SocketEvent> get events => _controller.stream;
+  SocketService()
+    : _socket = sic.io(
+        baseUrlSocket,
+        sic.OptionBuilder()
+            .setTransports(['websocket'])
+            .disableAutoConnect()
+            .build(),
+      );
 
-  Future<void> connect() async {
-    if (_socket != null) return;
-    _socket = IO.io(
-      _url,
-      IO.OptionBuilder()
-          .setTransports(['websocket'])
-          .enableAutoConnect()
-          .enableReconnection()
-          .build(),
-    );
+  void init() {
+    _socket
+      ..onConnect(
+        (payload) => log('socket connected: $payload', name: 'SocketService'),
+      )
+      ..onDisconnect(
+        (payload) =>
+            log('socket disconnected: $payload', name: 'SocketService'),
+      )
+      ..onReconnect(
+        (payload) => log('socket reconnected: $payload', name: 'SocketService'),
+      )
+      ..onError(
+        (payload) =>
+            log('socket error: $payload', name: 'SocketService', level: 1000),
+      )
+      ..onConnectError(
+        (payload) => log(
+          'socket connect error: $payload',
+          name: 'SocketService',
+          level: 1000,
+        ),
+      );
+    _socket.connect();
+  }
 
-    _socket!.onConnect((_) => _controller.add(const SocketEvent.connected()));
-    _socket!.onDisconnect((_) => _controller.add(const SocketEvent.disconnected()));
-    _socket!.on('notification:new', (data) {
-      _controller.add(SocketEvent.notification(data));
+  void connect() => init();
+
+  void disconnect() => dispose();
+
+  void dispose() {
+    _socket.clearListeners();
+    _socket.close();
+    _socket.dispose();
+  }
+
+  final events = StreamController<Map<String, dynamic>>.broadcast();
+  Stream<Map<String, dynamic>> get eventStream => events.stream;
+
+  void on(String eventName) {
+    _socket.on(eventName, (payload) {
+      log(
+        'Received socket event: $eventName with payload: $payload',
+        name: 'SocketService',
+      );
+      events.add(payload as Map<String, dynamic>);
     });
-    _socket!.onError((err) => _controller.add(SocketEvent.error(err)));
   }
-
-  void disconnect() {
-    _socket?.disconnect();
-    _socket = null;
-    _controller.close();
-  }
-
-  void emit(String event, dynamic data) => _socket?.emit(event, data);
 }

@@ -12,7 +12,7 @@ class SocketConnection extends _$SocketConnection {
     final socket = ref.watch(socketServiceProvider);
 
     if (isOnline) {
-      await socket.connect();
+      socket.connect();
       return true;
     } else {
       socket.disconnect();
@@ -20,5 +20,6 @@ class SocketConnection extends _$SocketConnection {
     }
   }
 
-  Future<void> refresh() async => await ref.refresh(socketConnectionProvider.future);
+  Future<void> refresh() async =>
+      await ref.refresh(socketConnectionProvider.future);
 }
