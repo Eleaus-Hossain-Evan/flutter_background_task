@@ -277,4 +277,19 @@ class LocalNotificationService {
   Future<void> cancelAll() async {
     await _plugin.cancelAll();
   }
+
+  Future<bool> requestPermissions() async {
+    final androidPlugin = _plugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
+
+    if (androidPlugin != null) {
+      final granted = await androidPlugin.requestNotificationsPermission();
+      if (granted == true) {
+        await androidPlugin.requestExactAlarmsPermission();
+      }
+      return granted ?? false;
+    }
+
+    return true;
+  }
 }

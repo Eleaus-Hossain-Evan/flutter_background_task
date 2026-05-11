@@ -193,4 +193,13 @@ void main() {
 
     expect(mockPlugin.cancelAllCalled, isTrue);
   });
+
+  test('requestPermissions should request and return permission status', () async {
+    final mockPlugin = FakeFlutterLocalNotificationsPlugin();
+    final service = LocalNotificationService(plugin: mockPlugin);
+
+    final result = await service.requestPermissions();
+
+    expect(result, isTrue);
+  });
 }
