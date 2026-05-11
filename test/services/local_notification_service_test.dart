@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter_background_task/services/local_notification_service.dart';
 
 class FakeFlutterLocalNotificationsPlugin extends Fake implements FlutterLocalNotificationsPlugin {
@@ -10,6 +11,9 @@ class FakeFlutterLocalNotificationsPlugin extends Fake implements FlutterLocalNo
   String? lastBody;
   String? lastPayload;
   NotificationDetails? lastDetails;
+  bool zonedScheduleCalled = false;
+  DateTimeComponents? lastMatchDateTimeComponents;
+  tz.TZDateTime? lastScheduledDate;
 
   @override
   Future<bool?> initialize(
@@ -34,6 +38,24 @@ class FakeFlutterLocalNotificationsPlugin extends Fake implements FlutterLocalNo
     lastBody = body;
     lastPayload = payload;
     lastDetails = notificationDetails;
+  }
+
+  @override
+  Future<void> zonedSchedule(
+    int id,
+    String? title,
+    String? body,
+    tz.TZDateTime scheduledDate,
+    NotificationDetails notificationDetails, {
+    required UILocalNotificationDateInterpretation uiLocalNotificationDateInterpretation,
+    bool androidAllowWhileIdle = false,
+    AndroidScheduleMode? androidScheduleMode,
+    String? payload,
+    DateTimeComponents? matchDateTimeComponents,
+  }) async {
+    zonedScheduleCalled = true;
+    lastMatchDateTimeComponents = matchDateTimeComponents;
+    lastScheduledDate = scheduledDate;
   }
 
   @override
@@ -98,5 +120,24 @@ void main() {
     expect(androidDetails?.actions?.length, equals(2));
     expect(androidDetails?.actions?[0].id, equals('view_action'));
     expect(androidDetails?.actions?[1].id, equals('dismiss_action'));
+  });
+
+  test('scheduleDaily should schedule a daily recurring notification', () async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    final mockPlugin = FakeFlutterLocalNotificationsPlugin();
+    final service = LocalNotificationService(plugin: mockPlugin);
+    await service.initialize();
+
+    await service.scheduleDaily(
+      id: 3,
+      title: 'Daily Title',
+      body: 'Daily Body',
+      hour: 10,
+      minute: 30,
+      payload: 'daily_payload',
+    );
+
+    expect(mockPlugin.zonedScheduleCalled, isTrue);
+    expect(mockPlugin.lastMatchDateTimeComponents, equals(DateTimeComponents.time));
   });
 }
