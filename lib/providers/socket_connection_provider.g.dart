@@ -33,7 +33,7 @@ final class SocketConnectionProvider
   SocketConnection create() => SocketConnection();
 }
 
-String _$socketConnectionHash() => r'33261061c7ca1dec270ea4144849265ff5dcc4a0';
+String _$socketConnectionHash() => r'684f9790c0faf56ab56afdfa1b82b17b62cfbc0d';
 
 abstract class _$SocketConnection extends $AsyncNotifier<bool> {
   FutureOr<bool> build();

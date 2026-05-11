@@ -40,11 +40,10 @@ class SocketService {
     _socket!.onError((err) => _controller.add(SocketEvent.error(err)));
   }
 
-  Future<void> disconnect() async {
-    await _socket?.disconnect();
-    await _socket?.close();
+  void disconnect() {
+    _socket?.disconnect();
     _socket = null;
-    await _controller.close();
+    _controller.close();
   }
 
   void emit(String event, dynamic data) => _socket?.emit(event, data);

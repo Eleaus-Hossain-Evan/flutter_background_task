@@ -1,6 +1,10 @@
 # Persistent‑Socket‑Background (Android‑focused) Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB‑SKILL: `superpowers:subagent-driven-development` (recommended). Steps use checkbox (`- [ ]`) syntax for tracking.
+> 
+> **Current branch:** `main` — implementation MUST create a feature branch first.
+> 
+> **Pre‑existing state:** `pubspec.yaml` already has: `hooks_riverpod`, `flutter_hooks`, `riverpod_annotation`, `socket_io_client`, `flutter_background_service`, `flutter_local_notifications`, `flutter_lints`. Missing: `shared_preferences` (dependencies), `riverpod_generator`, `build_runner` (devDependencies).
 
 **Goal:** Keep a `socket.io` connection alive only while the user has toggled **Go Online** → `true`. The connection should survive when the app moves to the background, and incoming `notification:new` events must be shown to the user via a local notification.
 
@@ -34,36 +38,32 @@
 
 ---
 
-## Task 1 – Add required dependencies
+## Branch Setup
+
+- [ ] Create feature branch before any code changes:
+```
+git checkout -b feat/persistent-socket-background
+```
+
+---
+
+## Task 1 – Add missing dependencies
 
 **File:** `pubspec.yaml`
-```yaml
-dependencies:
-  flutter:
-    sdk: flutter
-  cupertino_icons: ^1.0.8
-  hooks_riverpod: ^3.3.1
-  flutter_hooks: ^0.21.3+1
-  riverpod_annotation: ^4.0.2
-  socket_io_client: ^2.0.3+1
-  flutter_background_service: ^5.0.10+1
-  flutter_local_notifications: ^17.2.2
-  shared_preferences: ^2.2.2
 
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^6.0.0
-  riverpod_generator: ^4.0.3
-  build_runner: ^2.13.1
-  mocktail: ^1.0.0   # dev only, optional for future tests
-```
+1. **Add to `dependencies`:**
+   ```yaml
+   shared_preferences: ^2.2.2
+   ```
+
+2. **Add to `dev_dependencies`:**
+   ```yaml
+   riverpod_generator: ^4.0.3
+   build_runner: ^2.13.1
+   ```
+
 - [ ] Run `flutter pub get`.
 - [ ] Commit.
-```bash
-git add pubspec.yaml
-git commit -m "chore: add background‑service, notifications, shared_preferences"
-```
 
 ---
 
@@ -125,9 +125,8 @@ class SocketService {
   void emit(String event, dynamic data) => _socket?.emit(event, data);
 }
 ```
-- [ ] Run `flutter pub run build_runner build --delete-conflicting-outputs` (no generated files needed).
-- [ ] Commit.
-```bash
+- [ ] Commit:
+```
 git add lib/services/socket_service.dart
 git commit -m "feat: socket service wrapper with event stream"
 ```
@@ -155,8 +154,8 @@ SocketService socketService(SocketServiceRef ref) {
 ```bash
 flutter pub run build_runner build --delete-conflicting-outputs
 ```
-- [ ] Commit.
-```bash
+- [ ] Commit:
+```
 git add lib/services/socket_service_provider.dart lib/services/socket_service_provider.g.dart
 git commit -m "feat: provide SocketService via Riverpod functional provider"
 ```
@@ -197,8 +196,8 @@ class Online extends _$Online {
 }
 ```
 - [ ] Run code generation.
-- [ ] Commit.
-```bash
+- [ ] Commit:
+```
 git add lib/providers/online_provider.dart lib/providers/online_provider.g.dart
 git commit -m "feat: simple online state provider with persistence"
 ```
@@ -238,8 +237,8 @@ class SocketConnection extends _$SocketConnection {
 }
 ```
 - [ ] Run code generation.
-- [ ] Commit.
-```bash
+- [ ] Commit:
+```
 git add lib/providers/socket_connection_provider.dart lib/providers/socket_connection_provider.g.dart
 git commit -m "feat: socket connection provider that reacts to online state"
 ```
@@ -307,8 +306,8 @@ Future<void> backgroundEntryPoint(ServiceInstance service) async {
   });
 }
 ```
-- [ ] Commit.
-```bash
+- [ ] Commit:
+```
 git add lib/background/background_entry.dart
 git commit -m "feat: background isolate that restores online flag and forwards socket notifications"
 ```
@@ -331,8 +330,8 @@ git commit -m "feat: background isolate that restores online flag and forwards s
     <!-- Existing activities, etc. -->
 </application>
 ```
-- [ ] Commit.
-```bash
+- [ ] Commit:
+```
 git add android/app/src/main/AndroidManifest.xml
 git commit -m "chore: add foreground‑service permissions and service declaration"
 ```
@@ -395,8 +394,8 @@ git commit -m "chore: add foreground‑service permissions and service declarati
  }
 ```
 - [ ] Run `flutter pub run build_runner build --delete-conflicting-outputs`.
-- [ ] Commit.
-```bash
+- [ ] Commit:
+```
 git add lib/main.dart
 git commit -m "chore: initialise background service and hydrate online flag"
 ```
@@ -460,9 +459,8 @@ git commit -m "chore: initialise background service and hydrate online flag"
  }
 ```
 - [ ] Run `flutter analyze` to ensure imports are correct.
-- [ ] Run the app on Android, toggle the switch, background the app, and verify that a foreground‑service notification appears and that server‑sent `notification:new` payloads pop up as system notifications.
-- [ ] Commit.
-```bash
+- [ ] Commit:
+```
 git add lib/home/home_screen.dart
 git commit -m "feat: UI switch bound to onlineProvider with async feedback"
 ```
@@ -471,28 +469,22 @@ git commit -m "feat: UI switch bound to onlineProvider with async feedback"
 
 ## Task 10 – Final code‑generation run
 
-```bash
-flutter pub run build_runner build --delete-conflicting-outputs
+- [ ] Run `flutter pub run build_runner build --delete-conflicting-outputs`.
+- [ ] Verify all `*.g.dart` files exist under `lib/services/` and `lib/providers/`.
+- [ ] Commit:
 ```
-- Verify all `*.g.dart` files exist.
-- Commit generated files.
-```bash
-git add lib/**/*.g.dart
+git add lib/services/*.g.dart lib/providers/*.g.dart
 git commit -m "chore: run build_runner to generate Riverpod code"
 ```
 
 ---
 
-## Task 11 – Verify Android build & run
+## Task 11 – Verify Android build
 
-```bash
-flutter build apk --debug
+- [ ] Run `flutter build apk --debug` (or `flutter analyze` if no Android device attached).
+- [ ] If any runtime error occurs, fix it and repeat the build.
+- [ ] Commit:
 ```
-- Install on a device (`flutter install`).
-- Test the full flow (toggle, background, receive notification).
-- If any runtime error occurs, fix it and repeat the build.
-- Commit the clean state.
-```bash
 git add .
 git commit -m "ci: verified Android build and background socket functionality"
 ```

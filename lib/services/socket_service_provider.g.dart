@@ -48,4 +48,4 @@ final class SocketServiceProvider
   }
 }
 
-String _$socketServiceHash() => r'1f8d08c22e39ced6bca7af0c4c4d1aacbcfff1d9';
+String _$socketServiceHash() => r'fcb3f1fa24ba37fddbd8f42eda26030a5166bbff';

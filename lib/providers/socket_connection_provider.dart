@@ -15,7 +15,7 @@ class SocketConnection extends _$SocketConnection {
       await socket.connect();
       return true;
     } else {
-      await socket.disconnect();
+      socket.disconnect();
       return false;
     }
   }

@@ -5,30 +5,13 @@ import 'package:flutter_background_service/flutter_background_service.dart';
 import 'background/background_entry.dart';
 import 'providers/online_provider.dart';
 
-final _rootContainer = ProviderContainer();
-final ref = _rootContainer.ref;
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  await ref.read(onlineProvider.notifier).init();
-
-  await FlutterBackgroundService.initialize(
-    androidConfiguration: AndroidConfiguration(
-      notificationTitle: "Background Socket",
-      notificationContent: "Running...",
-      foregroundMode: true,
-    ),
-    iosConfiguration: null,
-  );
-
-  FlutterBackgroundService().setBackgroundService(
-    onStart: backgroundEntryPoint,
-  );
+  await initializeService();
 
   runApp(
-    ProviderScope(
-      child: const MyApp(),
+    const ProviderScope(
+      child: MyApp(),
     ),
   );
 }
