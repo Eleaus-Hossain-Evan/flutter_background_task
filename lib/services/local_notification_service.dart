@@ -216,4 +216,57 @@ class LocalNotificationService {
     }
     return scheduledDate;
   }
+
+  Future<void> scheduleWeekly({
+    required int id,
+    required String title,
+    required String body,
+    required int hour,
+    required int minute,
+    required List<int> weekdays,
+    String? payload,
+  }) async {
+    final scheduledDate = _nextInstanceOfWeekdayAndTime(weekdays[0], hour, minute);
+
+    const androidDetails = AndroidNotificationDetails(
+      'scheduled_notifications',
+      'Scheduled Notifications',
+      channelDescription: 'Channel for scheduled notifications',
+      importance: Importance.max,
+      priority: Priority.high,
+      icon: '@mipmap/ic_launcher',
+    );
+
+    const darwinDetails = DarwinNotificationDetails(
+      categoryIdentifier: 'local_notification_category',
+      interruptionLevel: InterruptionLevel.active,
+    );
+
+    const details = NotificationDetails(
+      android: androidDetails,
+      iOS: darwinDetails,
+      macOS: darwinDetails,
+    );
+
+    await _plugin.zonedSchedule(
+      id,
+      title,
+      body,
+      scheduledDate,
+      details,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
+      payload: payload,
+    );
+  }
+
+  tz.TZDateTime _nextInstanceOfWeekdayAndTime(int weekday, int hour, int minute) {
+    var scheduledDate = _nextInstanceOfTime(hour, minute);
+    while (scheduledDate.weekday != weekday) {
+      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    }
+    return scheduledDate;
+  }
 }

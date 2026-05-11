@@ -140,4 +140,24 @@ void main() {
     expect(mockPlugin.zonedScheduleCalled, isTrue);
     expect(mockPlugin.lastMatchDateTimeComponents, equals(DateTimeComponents.time));
   });
+
+  test('scheduleWeekly should schedule weekly recurring notification', () async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    final mockPlugin = FakeFlutterLocalNotificationsPlugin();
+    final service = LocalNotificationService(plugin: mockPlugin);
+    await service.initialize();
+
+    await service.scheduleWeekly(
+      id: 4,
+      title: 'Weekly Title',
+      body: 'Weekly Body',
+      hour: 9,
+      minute: 0,
+      weekdays: [1, 3, 5],
+      payload: 'weekly_payload',
+    );
+
+    expect(mockPlugin.zonedScheduleCalled, isTrue);
+    expect(mockPlugin.lastMatchDateTimeComponents, equals(DateTimeComponents.dayOfWeekAndTime));
+  });
 }
