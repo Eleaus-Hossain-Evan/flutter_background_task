@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:developer' as developer;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz_data;
@@ -8,7 +10,8 @@ class SocketNotificationService {
       FlutterLocalNotificationsPlugin();
 
   bool _isInitialized = false;
-  int _notificationIdCounter = 0;
+  Completer<void>? _initCompleter;
+  static int _notificationIdCounter = 0;
 
   static const String _channelId = 'socket_events';
   static const String _channelName = 'Socket Events';
@@ -16,47 +19,65 @@ class SocketNotificationService {
       'Notifications from background socket events';
 
   Future<void> initialize() async {
-    if (_isInitialized) return;
+    if (_isInitialized && (_initCompleter?.isCompleted ?? true)) return;
 
-    tz_data.initializeTimeZones();
-    tz.setLocalLocation(tz.getLocation('UTC'));
+    if (_initCompleter != null) {
+      await _initCompleter!.future;
+      return;
+    }
 
-    const androidSettings =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+    _initCompleter = Completer<void>();
 
-    final darwinSettings = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
-      notificationCategories: [
-        DarwinNotificationCategory(
-          'socket_notification',
-          actions: [
-            DarwinNotificationAction.plain(
-              'view_action',
-              'View',
-              options: {DarwinNotificationActionOption.foreground},
-            ),
-            DarwinNotificationAction.plain(
-              'dismiss_action',
-              'Dismiss',
-              options: {DarwinNotificationActionOption.destructive},
-            ),
-          ],
-        ),
-      ],
-    );
+    try {
+      tz_data.initializeTimeZones();
+      tz.setLocalLocation(tz.getLocation('UTC'));
 
-    final initSettings = InitializationSettings(
-      android: androidSettings,
-      iOS: darwinSettings,
-      macOS: darwinSettings,
-    );
+      const androidSettings =
+          AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    await _plugin.initialize(initSettings);
-    await _createAndroidChannel();
+      final darwinSettings = DarwinInitializationSettings(
+        requestAlertPermission: true,
+        requestBadgePermission: true,
+        requestSoundPermission: true,
+        notificationCategories: [
+          DarwinNotificationCategory(
+            'socket_notification',
+            actions: [
+              DarwinNotificationAction.plain(
+                'view_action',
+                'View',
+                options: {DarwinNotificationActionOption.foreground},
+              ),
+              DarwinNotificationAction.plain(
+                'dismiss_action',
+                'Dismiss',
+                options: {DarwinNotificationActionOption.destructive},
+              ),
+            ],
+          ),
+        ],
+      );
 
-    _isInitialized = true;
+      final initSettings = InitializationSettings(
+        android: androidSettings,
+        iOS: darwinSettings,
+        macOS: darwinSettings,
+      );
+
+      await _plugin.initialize(initSettings);
+      await _createAndroidChannel();
+
+      _isInitialized = true;
+      _initCompleter?.complete();
+    } catch (e) {
+      developer.log(
+        'Failed to initialize SocketNotificationService: $e',
+        name: 'SocketNotificationService',
+        level: 1000,
+      );
+      _initCompleter?.completeError(e);
+      rethrow;
+    }
   }
 
   Future<void> _createAndroidChannel() async {
