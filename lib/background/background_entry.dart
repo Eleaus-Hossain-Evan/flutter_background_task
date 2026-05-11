@@ -6,6 +6,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../services/socket_service.dart';
 import '../services/socket_service_provider.dart';
+import '../services/local_notification_service.dart';
 import '../providers/online_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -20,12 +21,8 @@ Future<bool> onIosBackground(ServiceInstance service) async {
 void onStart(ServiceInstance service) async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final notifPlugin = FlutterLocalNotificationsPlugin();
-  const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
-  const darwinInit = DarwinInitializationSettings();
-  await notifPlugin.initialize(
-    const InitializationSettings(android: androidInit, iOS: darwinInit),
-  );
+  final notifService = LocalNotificationService();
+  await notifService.initialize();
 
   final container = ProviderContainer();
 
@@ -37,19 +34,11 @@ void onStart(ServiceInstance service) async {
   socket.events.listen((event) async {
     if (event.type == 'notification') {
       final payload = event.payload as Map<String, dynamic>;
-      await notifPlugin.show(
-        0,
-        payload['title'] ?? 'New notification',
-        payload['body'] ?? '',
-        const NotificationDetails(
-          android: AndroidNotificationDetails(
-            'socket_channel',
-            'Socket Events',
-            channelDescription: 'Background notification channel',
-            importance: Importance.max,
-            priority: Priority.high,
-          ),
-        ),
+      await notifService.showWithActions(
+        id: 0,
+        title: payload['title'] ?? 'New notification',
+        body: payload['body'] ?? '',
+        payload: payload.toString(),
       );
     }
   });
