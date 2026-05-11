@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_background_task/home/home_screen.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
-import 'background/background_entry.dart';
-import 'providers/online_provider.dart';
+
+import 'background/background_service_entry.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeService();
+
+  // Initialize background service
+  await initializeBackgroundService();
 
   runApp(
     const ProviderScope(
@@ -23,7 +24,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo BG Task',
-      theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple)),
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      ),
       home: const HomeScreen(),
     );
   }
