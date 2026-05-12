@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
 import '../services/socket_service_provider.dart';
 import 'online_provider.dart';
 
@@ -11,7 +12,7 @@ class SocketConnection extends _$SocketConnection {
     final isOnline = ref.watch(onlineProvider);
     final socket = ref.watch(socketServiceProvider);
 
-    if (isOnline) {
+    if (isOnline.value ?? false) {
       socket.connect();
       return true;
     } else {

@@ -1,26 +1,26 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 typedef NotificationTapCallback = void Function(String? payload);
 
 class LocalNotificationService {
-  final FlutterLocalNotificationsPlugin _plugin;
-  NotificationTapCallback? _onNotificationTap;
+  static final _plugin = FlutterLocalNotificationsPlugin();
+  static NotificationTapCallback? _onNotificationTap;
 
-  LocalNotificationService({
-    FlutterLocalNotificationsPlugin? plugin,
-  }) : _plugin = plugin ?? FlutterLocalNotificationsPlugin();
+  LocalNotificationService();
 
-  void setNotificationTapCallback(NotificationTapCallback? callback) {
+  static void setNotificationTapCallback(NotificationTapCallback? callback) {
     _onNotificationTap = callback;
   }
 
-  Future<void> initialize() async {
+  static Future<void> init() async {
     tz.initializeTimeZones();
     tz.setLocalLocation(tz.getLocation('UTC'));
 
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings = AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
 
     final darwinSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
@@ -56,20 +56,20 @@ class LocalNotificationService {
     );
 
     await _plugin.initialize(
-      initSettings,
+      settings: initSettings,
       onDidReceiveNotificationResponse: _handleNotificationResponse,
     );
 
     await _createNotificationChannels();
   }
 
-  void _handleNotificationResponse(NotificationResponse response) {
+  static void _handleNotificationResponse(NotificationResponse response) {
     if (response.actionId == 'view_action') {
       _onNotificationTap?.call(response.payload);
     }
   }
 
-  Future<void> _createNotificationChannels() async {
+  static Future<void> _createNotificationChannels() async {
     const defaultChannel = AndroidNotificationChannel(
       'local_notifications',
       'Local Notifications',
@@ -84,8 +84,10 @@ class LocalNotificationService {
       importance: Importance.max,
     );
 
-    final androidPlugin = _plugin.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
+    final androidPlugin = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
 
     if (androidPlugin != null) {
       await androidPlugin.createNotificationChannel(defaultChannel);
@@ -93,7 +95,7 @@ class LocalNotificationService {
     }
   }
 
-  Future<void> show({
+  static Future<void> show({
     required int id,
     required String title,
     required String body,
@@ -119,7 +121,13 @@ class LocalNotificationService {
       macOS: darwinDetails,
     );
 
-    await _plugin.show(id, title, body, details, payload: payload);
+    await _plugin.show(
+      id: id,
+      title: title,
+      body: body,
+      notificationDetails: details,
+      payload: payload,
+    );
   }
 
   Future<void> showWithActions({
@@ -160,7 +168,13 @@ class LocalNotificationService {
       macOS: darwinDetails,
     );
 
-    await _plugin.show(id, title, body, details, payload: payload);
+    await _plugin.show(
+      id: id,
+      title: title,
+      body: body,
+      notificationDetails: details,
+      payload: payload,
+    );
   }
 
   Future<void> scheduleDaily({
@@ -194,13 +208,11 @@ class LocalNotificationService {
     );
 
     await _plugin.zonedSchedule(
-      id,
-      title,
-      body,
-      scheduledDate,
-      details,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
+      id: id,
+      title: title,
+      body: body,
+      scheduledDate: scheduledDate,
+      notificationDetails: details,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time,
       payload: payload,
@@ -209,8 +221,14 @@ class LocalNotificationService {
 
   tz.TZDateTime _nextInstanceOfTime(int hour, int minute) {
     final now = tz.TZDateTime.now(tz.local);
-    var scheduledDate =
-        tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, minute);
+    var scheduledDate = tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day,
+      hour,
+      minute,
+    );
     if (scheduledDate.isBefore(now)) {
       scheduledDate = scheduledDate.add(const Duration(days: 1));
     }
@@ -226,7 +244,11 @@ class LocalNotificationService {
     required List<int> weekdays,
     String? payload,
   }) async {
-    final scheduledDate = _nextInstanceOfWeekdayAndTime(weekdays[0], hour, minute);
+    final scheduledDate = _nextInstanceOfWeekdayAndTime(
+      weekdays[0],
+      hour,
+      minute,
+    );
 
     const androidDetails = AndroidNotificationDetails(
       'scheduled_notifications',
@@ -249,20 +271,22 @@ class LocalNotificationService {
     );
 
     await _plugin.zonedSchedule(
-      id,
-      title,
-      body,
-      scheduledDate,
-      details,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
+      id: id,
+      title: title,
+      body: body,
+      scheduledDate: scheduledDate,
+      notificationDetails: details,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
       payload: payload,
     );
   }
 
-  tz.TZDateTime _nextInstanceOfWeekdayAndTime(int weekday, int hour, int minute) {
+  tz.TZDateTime _nextInstanceOfWeekdayAndTime(
+    int weekday,
+    int hour,
+    int minute,
+  ) {
     var scheduledDate = _nextInstanceOfTime(hour, minute);
     while (scheduledDate.weekday != weekday) {
       scheduledDate = scheduledDate.add(const Duration(days: 1));
@@ -271,7 +295,7 @@ class LocalNotificationService {
   }
 
   Future<void> cancel(int id) async {
-    await _plugin.cancel(id);
+    await _plugin.cancel(id: id);
   }
 
   Future<void> cancelAll() async {
@@ -279,8 +303,10 @@ class LocalNotificationService {
   }
 
   Future<bool> requestPermissions() async {
-    final androidPlugin = _plugin.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
+    final androidPlugin = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
 
     if (androidPlugin != null) {
       final granted = await androidPlugin.requestNotificationsPermission();

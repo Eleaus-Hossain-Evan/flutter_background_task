@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'socket_service_provider.dart';
+part of 'socket_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
@@ -48,46 +48,43 @@ final class SocketServiceProvider
   }
 }
 
-String _$socketServiceHash() => r'dc6a6b8f154efe88e5a7c010d9fc4a688deb776f';
+String _$socketServiceHash() => r'9944a3374ccaefb72233cbb549d95b00a467345e';
 
-@ProviderFor(notificationStream)
-final notificationStreamProvider = NotificationStreamProvider._();
+@ProviderFor(socketEvent)
+final socketEventProvider = SocketEventProvider._();
 
-final class NotificationStreamProvider
+final class SocketEventProvider
     extends
         $FunctionalProvider<
-          AsyncValue<NotificationModel>,
-          NotificationModel,
-          Stream<NotificationModel>
+          AsyncValue<SocketEvent>,
+          SocketEvent,
+          Stream<SocketEvent>
         >
-    with
-        $FutureModifier<NotificationModel>,
-        $StreamProvider<NotificationModel> {
-  NotificationStreamProvider._()
+    with $FutureModifier<SocketEvent>, $StreamProvider<SocketEvent> {
+  SocketEventProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'notificationStreamProvider',
+        name: r'socketEventProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$notificationStreamHash();
+  String debugGetCreateSourceHash() => _$socketEventHash();
 
   @$internal
   @override
-  $StreamProviderElement<NotificationModel> $createElement(
+  $StreamProviderElement<SocketEvent> $createElement(
     $ProviderPointer pointer,
   ) => $StreamProviderElement(pointer);
 
   @override
-  Stream<NotificationModel> create(Ref ref) {
-    return notificationStream(ref);
+  Stream<SocketEvent> create(Ref ref) {
+    return socketEvent(ref);
   }
 }
 
-String _$notificationStreamHash() =>
-    r'4c5d0e35503dfbd9c699225a884333ae509ef74f';
+String _$socketEventHash() => r'64293b02a35a7880dc91b97343976b9ea8d6ae4a';

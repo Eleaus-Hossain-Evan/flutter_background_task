@@ -1,9 +1,9 @@
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
 import '../services/local_notification_service.dart';
 
-final localNotificationServiceProvider = Provider<LocalNotificationService>((ref) {
-  return LocalNotificationService(
-    plugin: FlutterLocalNotificationsPlugin(),
-  );
-});
+part 'local_notification_service_provider.g.dart';
+
+@Riverpod(keepAlive: true)
+LocalNotificationService localNotificationService(Ref ref) =>
+    LocalNotificationService();

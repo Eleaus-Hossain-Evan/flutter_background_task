@@ -1,0 +1,64 @@
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+
+import 'foreground_task_handler.dart';
+
+class ForegroundServiceManager {
+  static Future<void> init() async {
+    FlutterForegroundTask.init(
+      androidNotificationOptions: AndroidNotificationOptions(
+        channelId: 'socket_channel',
+        channelName: 'Live Connection',
+        channelDescription: 'Keeps ride requests active',
+        onlyAlertOnce: true,
+        playSound: false,
+      ),
+      iosNotificationOptions: const IOSNotificationOptions(
+        showNotification: true,
+      ),
+      foregroundTaskOptions: ForegroundTaskOptions(
+        eventAction: ForegroundTaskEventAction.repeat(10000), // 10s heartbeat
+        autoRunOnBoot: true,
+      ),
+    );
+  }
+
+  static Future<bool> get isRunning => FlutterForegroundTask.isRunningService;
+
+  static void initCommunicationPort() =>
+      FlutterForegroundTask.initCommunicationPort();
+
+  static Future<void> start() async {
+    if (await isRunning) {
+      await FlutterForegroundTask.restartService();
+    } else {
+      await FlutterForegroundTask.startService(
+        notificationTitle: 'Waiting for rides',
+        notificationText: 'You are online',
+        callback: startCallback,
+        serviceTypes: [
+          ForegroundServiceTypes.dataSync,
+        ],
+      );
+    }
+  }
+
+  static Future<void> stop() async {
+    await FlutterForegroundTask.stopService();
+  }
+
+  static Future<void> requestAndroidPermissions() async {
+    // if (!await FlutterForegroundTask.canDrawOverlays) {
+    //   await FlutterForegroundTask.openSystemAlertWindowSettings();
+    // }
+
+    if (!await FlutterForegroundTask.isIgnoringBatteryOptimizations) {
+      await FlutterForegroundTask.requestIgnoreBatteryOptimization();
+    }
+
+    final NotificationPermission notificationPermission =
+        await FlutterForegroundTask.checkNotificationPermission();
+    if (notificationPermission != NotificationPermission.granted) {
+      await FlutterForegroundTask.requestNotificationPermission();
+    }
+  }
+}

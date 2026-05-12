@@ -1,10 +1,11 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter_background_task/services/local_notification_service.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:timezone/timezone.dart' as tz;
 
-class FakeFlutterLocalNotificationsPlugin extends Fake implements FlutterLocalNotificationsPlugin {
+class FakeFlutterLocalNotificationsPlugin extends Fake
+    implements FlutterLocalNotificationsPlugin {
   bool showCalled = false;
   int? lastId;
   String? lastTitle;
@@ -22,7 +23,8 @@ class FakeFlutterLocalNotificationsPlugin extends Fake implements FlutterLocalNo
   Future<bool?> initialize(
     InitializationSettings initializationSettings, {
     void Function(NotificationResponse)? onDidReceiveNotificationResponse,
-    void Function(NotificationResponse)? onDidReceiveBackgroundNotificationResponse,
+    void Function(NotificationResponse)?
+    onDidReceiveBackgroundNotificationResponse,
   }) async {
     return true;
   }
@@ -50,7 +52,8 @@ class FakeFlutterLocalNotificationsPlugin extends Fake implements FlutterLocalNo
     String? body,
     tz.TZDateTime scheduledDate,
     NotificationDetails notificationDetails, {
-    required UILocalNotificationDateInterpretation uiLocalNotificationDateInterpretation,
+    required UILocalNotificationDateInterpretation
+    uiLocalNotificationDateInterpretation,
     bool androidAllowWhileIdle = false,
     AndroidScheduleMode? androidScheduleMode,
     String? payload,
@@ -94,7 +97,7 @@ void main() {
     final service = LocalNotificationService(
       plugin: FakeFlutterLocalNotificationsPlugin(),
     );
-    await service.initialize();
+    await service.init();
     expect(true, isTrue);
   });
 
@@ -130,50 +133,62 @@ void main() {
     );
 
     expect(mockPlugin.showCalled, isTrue);
-    final androidDetails = mockPlugin.lastDetails?.android as AndroidNotificationDetails?;
+    final androidDetails = mockPlugin.lastDetails?.android;
     expect(androidDetails?.actions?.length, equals(2));
     expect(androidDetails?.actions?[0].id, equals('view_action'));
     expect(androidDetails?.actions?[1].id, equals('dismiss_action'));
   });
 
-  test('scheduleDaily should schedule a daily recurring notification', () async {
-    TestWidgetsFlutterBinding.ensureInitialized();
-    final mockPlugin = FakeFlutterLocalNotificationsPlugin();
-    final service = LocalNotificationService(plugin: mockPlugin);
-    await service.initialize();
+  test(
+    'scheduleDaily should schedule a daily recurring notification',
+    () async {
+      TestWidgetsFlutterBinding.ensureInitialized();
+      final mockPlugin = FakeFlutterLocalNotificationsPlugin();
+      final service = LocalNotificationService(plugin: mockPlugin);
+      await service.init();
 
-    await service.scheduleDaily(
-      id: 3,
-      title: 'Daily Title',
-      body: 'Daily Body',
-      hour: 10,
-      minute: 30,
-      payload: 'daily_payload',
-    );
+      await service.scheduleDaily(
+        id: 3,
+        title: 'Daily Title',
+        body: 'Daily Body',
+        hour: 10,
+        minute: 30,
+        payload: 'daily_payload',
+      );
 
-    expect(mockPlugin.zonedScheduleCalled, isTrue);
-    expect(mockPlugin.lastMatchDateTimeComponents, equals(DateTimeComponents.time));
-  });
+      expect(mockPlugin.zonedScheduleCalled, isTrue);
+      expect(
+        mockPlugin.lastMatchDateTimeComponents,
+        equals(DateTimeComponents.time),
+      );
+    },
+  );
 
-  test('scheduleWeekly should schedule weekly recurring notification', () async {
-    TestWidgetsFlutterBinding.ensureInitialized();
-    final mockPlugin = FakeFlutterLocalNotificationsPlugin();
-    final service = LocalNotificationService(plugin: mockPlugin);
-    await service.initialize();
+  test(
+    'scheduleWeekly should schedule weekly recurring notification',
+    () async {
+      TestWidgetsFlutterBinding.ensureInitialized();
+      final mockPlugin = FakeFlutterLocalNotificationsPlugin();
+      final service = LocalNotificationService(plugin: mockPlugin);
+      await service.init();
 
-    await service.scheduleWeekly(
-      id: 4,
-      title: 'Weekly Title',
-      body: 'Weekly Body',
-      hour: 9,
-      minute: 0,
-      weekdays: [1, 3, 5],
-      payload: 'weekly_payload',
-    );
+      await service.scheduleWeekly(
+        id: 4,
+        title: 'Weekly Title',
+        body: 'Weekly Body',
+        hour: 9,
+        minute: 0,
+        weekdays: [1, 3, 5],
+        payload: 'weekly_payload',
+      );
 
-    expect(mockPlugin.zonedScheduleCalled, isTrue);
-    expect(mockPlugin.lastMatchDateTimeComponents, equals(DateTimeComponents.dayOfWeekAndTime));
-  });
+      expect(mockPlugin.zonedScheduleCalled, isTrue);
+      expect(
+        mockPlugin.lastMatchDateTimeComponents,
+        equals(DateTimeComponents.dayOfWeekAndTime),
+      );
+    },
+  );
 
   test('cancel should cancel a specific notification by id', () async {
     final mockPlugin = FakeFlutterLocalNotificationsPlugin();
@@ -194,12 +209,15 @@ void main() {
     expect(mockPlugin.cancelAllCalled, isTrue);
   });
 
-  test('requestPermissions should request and return permission status', () async {
-    final mockPlugin = FakeFlutterLocalNotificationsPlugin();
-    final service = LocalNotificationService(plugin: mockPlugin);
+  test(
+    'requestPermissions should request and return permission status',
+    () async {
+      final mockPlugin = FakeFlutterLocalNotificationsPlugin();
+      final service = LocalNotificationService(plugin: mockPlugin);
 
-    final result = await service.requestPermissions();
+      final result = await service.requestPermissions();
 
-    expect(result, isTrue);
-  });
+      expect(result, isTrue);
+    },
+  );
 }
