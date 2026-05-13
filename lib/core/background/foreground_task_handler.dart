@@ -29,10 +29,11 @@ class SocketTaskHandler extends TaskHandler {
       IO.OptionBuilder()
           .setTransports(['websocket'])
           .setAuth({
-            'token': 'dbd283689ecb70182703123f9bcde41ca9e24d79',
+            'token': 'a0830e7ec7a7de1f67503f14249602db5144a0a5',
           })
           .enableAutoConnect()
           .setTimeout(500)
+          .enableMultiplex()
           .build(),
     );
 

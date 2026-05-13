@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_background_task/core/background/foreground_service_manager.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -12,6 +13,7 @@ class Online extends _$Online {
 
   @override
   AsyncValue<bool> build() {
+    init();
     return const AsyncValue.data(false);
   }
 
@@ -60,3 +62,4 @@ class Online extends _$Online {
     unawaited(ForegroundServiceManager.stop());
   }
 }
+
