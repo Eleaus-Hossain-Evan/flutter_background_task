@@ -1,11 +1,21 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 
 import 'foreground_service_manager_interface.dart';
 import 'foreground_task_handler.dart';
 
+typedef _FlutterForegroundTaskInit = void Function();
+
 class ForegroundServiceManager implements IForegroundServiceManager {
+  @visibleForTesting
+  static _FlutterForegroundTaskInit? testInitOverride;
+
   @override
   Future<void> init() async {
+    if (testInitOverride != null) {
+      testInitOverride!();
+      return;
+    }
     FlutterForegroundTask.init(
       androidNotificationOptions: AndroidNotificationOptions(
         channelId: 'socket_channel',
