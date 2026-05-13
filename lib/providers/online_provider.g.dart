@@ -40,7 +40,7 @@ final class OnlineProvider extends $NotifierProvider<Online, AsyncValue<bool>> {
   }
 }
 
-String _$onlineHash() => r'b12e3a8237dd7f8ee40a13a5be043c7a084e8b94';
+String _$onlineHash() => r'080855aabd0b81a99ee70aaac9d1b545c16924ed';
 
 abstract class _$Online extends $Notifier<AsyncValue<bool>> {
   AsyncValue<bool> build();

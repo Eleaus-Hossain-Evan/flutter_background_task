@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter_background_task/core/background/foreground_service_manager.dart';
-import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:flutter_background_task/core/background/foreground_service_manager_interface.dart';
+import 'package:flutter_background_task/providers/foreground_service_manager_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -11,8 +11,11 @@ part 'online_provider.g.dart';
 class Online extends _$Online {
   static const _prefsKey = 'isOnline';
 
+  late final IForegroundServiceManager _fgManager;
+
   @override
   AsyncValue<bool> build() {
+    _fgManager = ref.read(foregroundServiceManagerProvider);
     init();
     return const AsyncValue.data(false);
   }
@@ -20,8 +23,8 @@ class Online extends _$Online {
   Future<void> init() async {
     state = const AsyncValue.loading();
     try {
-      await ForegroundServiceManager.requestAndroidPermissions();
-      final running = await ForegroundServiceManager.isRunning;
+      await _fgManager.requestAndroidPermissions();
+      final running = await _fgManager.isRunning;
       final prefs = await SharedPreferences.getInstance();
       state = AsyncValue.data(running);
       if (running && !(prefs.getBool(_prefsKey) ?? false)) {
@@ -55,11 +58,10 @@ class Online extends _$Online {
   }
 
   Future<void> _startBackgroundService() async {
-    await ForegroundServiceManager.start();
+    await _fgManager.start();
   }
 
   Future<void> _stopBackgroundService() async {
-    unawaited(ForegroundServiceManager.stop());
+    unawaited(_fgManager.stop());
   }
 }
-

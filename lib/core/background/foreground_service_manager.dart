@@ -1,9 +1,11 @@
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 
+import 'foreground_service_manager_interface.dart';
 import 'foreground_task_handler.dart';
 
-class ForegroundServiceManager {
-  static Future<void> init() async {
+class ForegroundServiceManager implements IForegroundServiceManager {
+  @override
+  Future<void> init() async {
     FlutterForegroundTask.init(
       androidNotificationOptions: AndroidNotificationOptions(
         channelId: 'socket_channel',
@@ -22,12 +24,15 @@ class ForegroundServiceManager {
     );
   }
 
-  static Future<bool> get isRunning => FlutterForegroundTask.isRunningService;
+  @override
+  Future<bool> get isRunning => FlutterForegroundTask.isRunningService;
 
-  static void initCommunicationPort() =>
+  @override
+  void initCommunicationPort() =>
       FlutterForegroundTask.initCommunicationPort();
 
-  static Future<void> start() async {
+  @override
+  Future<void> start() async {
     if (await isRunning) {
       await FlutterForegroundTask.restartService();
     } else {
@@ -42,11 +47,13 @@ class ForegroundServiceManager {
     }
   }
 
-  static Future<void> stop() async {
+  @override
+  Future<void> stop() async {
     await FlutterForegroundTask.stopService();
   }
 
-  static Future<void> requestAndroidPermissions() async {
+  @override
+  Future<void> requestAndroidPermissions() async {
     // if (!await FlutterForegroundTask.canDrawOverlays) {
     //   await FlutterForegroundTask.openSystemAlertWindowSettings();
     // }

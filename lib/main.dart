@@ -2,16 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_background_task/home/home_screen.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import 'core/background/foreground_service_manager.dart';
 import 'core/notifications/local_notification_service.dart';
+import 'providers/foreground_service_manager_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize background service
   await LocalNotificationService.init();
-  await ForegroundServiceManager.init();
-  ForegroundServiceManager.initCommunicationPort();
+  final container = ProviderContainer();
+  final fgManager = container.read(foregroundServiceManagerProvider);
+  await fgManager.init();
+  fgManager.initCommunicationPort();
+  container.dispose();
 
   runApp(
     const ProviderScope(
