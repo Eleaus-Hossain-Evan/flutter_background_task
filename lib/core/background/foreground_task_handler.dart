@@ -7,7 +7,7 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 import '../../models/notification_model.dart';
-import '../../services/local_notification_service.dart';
+import '../notifications/local_notification_service.dart';
 import '../socket/socket_service.dart';
 
 @pragma('vm:entry-point')

@@ -3,7 +3,7 @@ import 'package:flutter_background_task/home/home_screen.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'core/background/foreground_service_manager.dart';
-import 'services/local_notification_service.dart';
+import 'core/notifications/local_notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
