@@ -59,7 +59,8 @@ class SocketTaskHandler extends TaskHandler {
     socket.on('notification:new', (data) {
       log('[onNotificationNew] \ndata: $data', name: 'SocketService');
       final model = NotificationModel.fromMap(data);
-      LocalNotificationService.show(
+      final notificationService = LocalNotificationService();
+      notificationService.show(
         id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
         title: model.message,
         body: model.data.message,

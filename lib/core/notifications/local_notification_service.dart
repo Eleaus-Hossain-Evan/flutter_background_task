@@ -1,14 +1,26 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
+import 'notification_service.dart';
+
 typedef NotificationTapCallback = void Function(String? payload);
 
-class LocalNotificationService {
-  static final _plugin = FlutterLocalNotificationsPlugin();
+class LocalNotificationService implements NotificationService {
+  static FlutterLocalNotificationsPlugin _plugin = FlutterLocalNotificationsPlugin();
   static NotificationTapCallback? _onNotificationTap;
 
-  LocalNotificationService();
+  LocalNotificationService({FlutterLocalNotificationsPlugin? plugin}) {
+    if (plugin != null) {
+      _plugin = plugin;
+    }
+  }
+
+  @visibleForTesting
+  static void replacePlugin(FlutterLocalNotificationsPlugin plugin) {
+    _plugin = plugin;
+  }
 
   static void setNotificationTapCallback(NotificationTapCallback? callback) {
     _onNotificationTap = callback;
@@ -95,7 +107,8 @@ class LocalNotificationService {
     }
   }
 
-  static Future<void> show({
+  @override
+  Future<void> show({
     required int id,
     required String title,
     required String body,
