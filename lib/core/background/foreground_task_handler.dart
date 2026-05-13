@@ -8,7 +8,6 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 import '../../models/notification_model.dart';
 import '../notifications/local_notification_service.dart';
-import '../socket/socket_service.dart';
 
 @pragma('vm:entry-point')
 void startCallback() {
@@ -16,8 +15,6 @@ void startCallback() {
 }
 
 class SocketTaskHandler extends TaskHandler {
-  late SocketService _socket;
-
   @override
   Future<void> onStart(DateTime timestamp, TaskStarter starter) async {
     log(
