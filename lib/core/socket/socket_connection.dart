@@ -22,8 +22,11 @@ class SocketIoConnection implements SocketConnection {
     _socket = IO.io(
       url,
       IO.OptionBuilder()
-          .setTransports(['websocket', 'polling'])
+          .setTransports(['websocket'])
           .setAuth(auth)
+          .enableAutoConnect()
+          .setTimeout(500)
+          .enableMultiplex()
           .build(),
     );
   }

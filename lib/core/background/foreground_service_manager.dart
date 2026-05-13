@@ -4,11 +4,11 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'foreground_service_manager_interface.dart';
 import 'foreground_task_handler.dart';
 
-typedef _FlutterForegroundTaskInit = void Function();
+typedef FlutterForegroundTaskInit = void Function();
 
 class ForegroundServiceManager implements IForegroundServiceManager {
   @visibleForTesting
-  static _FlutterForegroundTaskInit? testInitOverride;
+  static FlutterForegroundTaskInit? testInitOverride;
 
   @override
   Future<void> init() async {
@@ -21,8 +21,8 @@ class ForegroundServiceManager implements IForegroundServiceManager {
         channelId: 'socket_channel',
         channelName: 'Live Connection',
         channelDescription: 'Keeps ride requests active',
-        onlyAlertOnce: true,
-        playSound: false,
+        channelImportance: NotificationChannelImportance.DEFAULT,
+        playSound: true,
       ),
       iosNotificationOptions: const IOSNotificationOptions(
         showNotification: true,

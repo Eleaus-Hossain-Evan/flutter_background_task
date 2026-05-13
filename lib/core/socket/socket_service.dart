@@ -18,9 +18,7 @@ class SocketService implements ISocketService {
   SocketService()
     : _connection = SocketIoConnection(
         'https://api.ambufast.com/notification',
-        auth: {
-          'token': 'b326b2dcadbcc872d35cce1ecca4e90a6e025cdf',
-        },
+        auth: {'token': 'a0830e7ec7a7de1f67503f14249602db5144a0a5'},
       );
   @visibleForTesting
   SocketService.withConnection(this._connection);
