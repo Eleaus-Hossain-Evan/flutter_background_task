@@ -16,7 +16,10 @@ void main() {
     });
 
     final service = SocketService.withConnection(mockConn);
-    final future = expectLater(service.eventStream, emits(SocketEvent.connected()));
+    final future = expectLater(
+      service.eventStream,
+      emits(SocketEvent.connected()),
+    );
     service.connect();
     await future;
   });

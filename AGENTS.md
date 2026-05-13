@@ -5,7 +5,7 @@ Flutter test project for maintaining socket connections and receiving notificati
 ## Platform-specific requirements for background tasks
 
 ### Android
-- `minSdk: 21+` (required for WorkManager/background services)
+- `minSdk: 21+` (required for flutter_foreground_tasks)
 - `targetSdk: flutter.targetSdkVersion` (check pubspec: 34)
 - Add background service permissions to `android/app/src/main/AndroidManifest.xml`:
   ```xml

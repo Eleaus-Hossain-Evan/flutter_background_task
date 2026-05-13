@@ -38,8 +38,7 @@ class ForegroundServiceManager implements IForegroundServiceManager {
   Future<bool> get isRunning => FlutterForegroundTask.isRunningService;
 
   @override
-  void initCommunicationPort() =>
-      FlutterForegroundTask.initCommunicationPort();
+  void initCommunicationPort() => FlutterForegroundTask.initCommunicationPort();
 
   @override
   Future<void> start() async {

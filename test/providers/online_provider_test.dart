@@ -12,12 +12,13 @@ void main() {
     final mockMgr = MockFgManager();
     when(() => mockMgr.isRunning).thenAnswer((_) async => false);
     when(() => mockMgr.start()).thenAnswer((_) async => {});
-    when(() => mockMgr.requestAndroidPermissions())
-        .thenAnswer((_) async => {});
+    when(() => mockMgr.requestAndroidPermissions()).thenAnswer((_) async => {});
 
-    final container = ProviderContainer(overrides: [
-      foregroundServiceManagerProvider.overrideWithValue(mockMgr),
-    ]);
+    final container = ProviderContainer(
+      overrides: [
+        foregroundServiceManagerProvider.overrideWithValue(mockMgr),
+      ],
+    );
     addTearDown(() => container.dispose());
 
     final notifier = container.read(onlineProvider.notifier);

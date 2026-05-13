@@ -8,7 +8,8 @@ import 'notification_service.dart';
 typedef NotificationTapCallback = void Function(String? payload);
 
 class LocalNotificationService implements NotificationService {
-  static FlutterLocalNotificationsPlugin _plugin = FlutterLocalNotificationsPlugin();
+  static FlutterLocalNotificationsPlugin _plugin =
+      FlutterLocalNotificationsPlugin();
   static NotificationTapCallback? _onNotificationTap;
 
   LocalNotificationService({FlutterLocalNotificationsPlugin? plugin}) {

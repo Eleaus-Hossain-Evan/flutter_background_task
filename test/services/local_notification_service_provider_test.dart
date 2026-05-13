@@ -4,11 +4,14 @@ import 'package:flutter_background_task/core/notifications/local_notification_se
 import 'package:flutter_background_task/providers/local_notification_service_provider.dart';
 
 void main() {
-  test('localNotificationServiceProvider should provide LocalNotificationService', () {
-    final container = ProviderContainer();
-    addTearDown(container.dispose);
+  test(
+    'localNotificationServiceProvider should provide LocalNotificationService',
+    () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
 
-    final service = container.read(localNotificationServiceProvider);
-    expect(service, isA<LocalNotificationService>());
-  });
+      final service = container.read(localNotificationServiceProvider);
+      expect(service, isA<LocalNotificationService>());
+    },
+  );
 }
