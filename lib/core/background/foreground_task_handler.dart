@@ -23,8 +23,8 @@ class SocketTaskHandler extends TaskHandler {
   SocketTaskHandler({
     required ISocketService socketService,
     required NotificationService notificationService,
-  })  : _socketService = socketService,
-        _notificationService = notificationService;
+  }) : _socketService = socketService,
+       _notificationService = notificationService;
 
   final ISocketService _socketService;
   final NotificationService _notificationService;
@@ -65,15 +65,16 @@ class SocketTaskHandler extends TaskHandler {
   @override
   Future<void> onRepeatEvent(DateTime timestamp) async {
     log('onRepeatEvent at $timestamp', name: 'SocketTaskHandler');
+    _socketService.emit('ping', {'timestamp': timestamp.toIso8601String()});
   }
 
   @override
-  Future<void> onDestroy(DateTime timestamp, bool isTimeout) {
+  Future<void> onDestroy(DateTime timestamp, bool isTimeout) async {
     log(
       '=============================\nForeground task destroyed at $timestamp \n=============================',
       name: 'SocketTaskHandler',
     );
-    _subscription?.cancel();
+    await _subscription?.cancel();
     _socketService.disconnect();
     return Future.value();
   }

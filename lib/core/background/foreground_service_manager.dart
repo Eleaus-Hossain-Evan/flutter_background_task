@@ -22,6 +22,7 @@ class ForegroundServiceManager implements IForegroundServiceManager {
         channelName: 'Live Connection',
         channelDescription: 'Keeps ride requests active',
         channelImportance: NotificationChannelImportance.DEFAULT,
+        priority: NotificationPriority.HIGH,
         playSound: true,
       ),
       iosNotificationOptions: const IOSNotificationOptions(
@@ -30,6 +31,8 @@ class ForegroundServiceManager implements IForegroundServiceManager {
       foregroundTaskOptions: ForegroundTaskOptions(
         eventAction: ForegroundTaskEventAction.repeat(10000), // 10s heartbeat
         autoRunOnBoot: true,
+        allowWakeLock: true,
+        allowAutoRestart: true,
       ),
     );
   }

@@ -1,4 +1,3 @@
-import 'package:flutter/widgets.dart';
 import 'package:flutter_background_task/core/notifications/local_notification_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,8 +19,8 @@ class FakeFlutterLocalNotificationsPlugin extends Fake
   bool cancelAllCalled = false;
 
   @override
-  Future<bool?> initialize(
-    InitializationSettings initializationSettings, {
+  Future<bool?> initialize({
+    required InitializationSettings settings,
     void Function(NotificationResponse)? onDidReceiveNotificationResponse,
     void Function(NotificationResponse)?
     onDidReceiveBackgroundNotificationResponse,
@@ -30,11 +29,11 @@ class FakeFlutterLocalNotificationsPlugin extends Fake
   }
 
   @override
-  Future<void> show(
-    int id,
+  Future<void> show({
+    required int id,
     String? title,
     String? body,
-    NotificationDetails? notificationDetails, {
+    NotificationDetails? notificationDetails,
     String? payload,
   }) async {
     showCalled = true;
@@ -46,14 +45,13 @@ class FakeFlutterLocalNotificationsPlugin extends Fake
   }
 
   @override
-  Future<void> zonedSchedule(
-    int id,
+  Future<void> zonedSchedule({
+    required int id,
     String? title,
     String? body,
-    tz.TZDateTime scheduledDate,
-    NotificationDetails notificationDetails, {
-    required UILocalNotificationDateInterpretation
-    uiLocalNotificationDateInterpretation,
+    required tz.TZDateTime scheduledDate,
+    required NotificationDetails notificationDetails,
+    dynamic uiLocalNotificationDateInterpretation,
     bool androidAllowWhileIdle = false,
     AndroidScheduleMode? androidScheduleMode,
     String? payload,
@@ -65,7 +63,7 @@ class FakeFlutterLocalNotificationsPlugin extends Fake
   }
 
   @override
-  Future<void> cancel(int id, {String? tag}) async {
+  Future<void> cancel({required int id, String? tag}) async {
     cancelCalled = true;
     lastCancelledId = id;
   }
@@ -94,10 +92,10 @@ void main() {
 
   test('initialize should initialize the plugin', () async {
     TestWidgetsFlutterBinding.ensureInitialized();
-    final service = LocalNotificationService(
-      plugin: FakeFlutterLocalNotificationsPlugin(),
+    LocalNotificationService.replacePlugin(
+      FakeFlutterLocalNotificationsPlugin(),
     );
-    await service.init();
+    await LocalNotificationService.init();
     expect(true, isTrue);
   });
 
@@ -144,8 +142,9 @@ void main() {
     () async {
       TestWidgetsFlutterBinding.ensureInitialized();
       final mockPlugin = FakeFlutterLocalNotificationsPlugin();
+      LocalNotificationService.replacePlugin(mockPlugin);
       final service = LocalNotificationService(plugin: mockPlugin);
-      await service.init();
+      await LocalNotificationService.init();
 
       await service.scheduleDaily(
         id: 3,
@@ -169,8 +168,9 @@ void main() {
     () async {
       TestWidgetsFlutterBinding.ensureInitialized();
       final mockPlugin = FakeFlutterLocalNotificationsPlugin();
+      LocalNotificationService.replacePlugin(mockPlugin);
       final service = LocalNotificationService(plugin: mockPlugin);
-      await service.init();
+      await LocalNotificationService.init();
 
       await service.scheduleWeekly(
         id: 4,
